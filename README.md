@@ -79,3 +79,7 @@ MagicHud.BarXPos = 5
 MagicHud.ShowBackground = true OR false
 ```
 ![DISABLEBACKGROUND](https://i.postimg.cc/KYbsdM6g/zpuka2ca.gif)
+
+In-game Preview
+![PREVIEW1](https://i.postimg.cc/Z5hm7KjQ/20241014040610-1.jpg) 
+![PREVIEW2](https://i.postimg.cc/fTdZf07X/20241014040344-1.jpg)
