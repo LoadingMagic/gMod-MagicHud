@@ -1,15 +1,18 @@
--- Version 1.3
+-- Version 1.4
 
 include("autorun/sh_hudconfig.lua")
 
+-- Create the fonts for the HUD
 surface.CreateFont("Font1", {font = "Trebuchet18", size = 18, weight = 600, antialias = true})
 surface.CreateFont("Font2", {font = "Trebuchet18", size = 18, weight = 600, antialias = true})
 
+-- Define colors and dimensions
 local BackgroundBlur = Color(0, 0, 0, 225)
 local ShadowColor = Color(0, 0, 0, 100)
 local BarW = 160
 local BarH = 16
 
+-- Load icon textures
 local heart = Material("magichud/heart.png", "noclamp smooth")
 local user = Material("magichud/id.png", "noclamp smooth")
 local world = Material("magichud/shield.png", "noclamp smooth")
@@ -18,15 +21,18 @@ local moneyicon = Material("magichud/cash.png", "noclamp smooth")
 local calculator = Material("magichud/cash2.png", "noclamp smooth")
 local gunlicenseIcon = Material("icon16/page_white_text.png", "noclamp smooth")
 
+-- Screen dimensions
 local x = ScrW()
 local y = ScrH()
 
+-- Generate a rainbow color for dynamic text
 local function GetRainbowColor()
     local hue = (CurTime() % 6) / 6
     local color = HSVToColor(hue * 360, 1, 1)
     return color
 end
 
+-- Draw the agenda with background if enabled
 local function DrawAgenda()
     local agenda = LocalPlayer():getAgendaTable()
     if not agenda then return end
@@ -49,6 +55,7 @@ local function DrawAgenda()
     end
 end
 
+-- Draw the black blur background
 local function DrawBackgroundBlur()
     if MagicHud.ShowBackground then
         surface.SetDrawColor(BackgroundBlur)
@@ -56,6 +63,7 @@ local function DrawBackgroundBlur()
     end
 end
 
+-- Draw top-right cycling text or static text if cycling is disabled
 local function DrawTopRightText()
     if MagicHud.EnableTopRightTextCycle then
         local time = CurTime()
@@ -69,6 +77,7 @@ local function DrawTopRightText()
     end
 end
 
+-- Draw an icon with a soft shadow for added depth
 local function DrawIconWithSoftShadow(xpos, ypos, icon, iconSize, shadowOffset)
     local shadowSize = iconSize + 2
     surface.SetDrawColor(ShadowColor)
@@ -81,6 +90,7 @@ local function DrawIconWithSoftShadow(xpos, ypos, icon, iconSize, shadowOffset)
     surface.DrawTexturedRect(xpos, ypos, iconSize, iconSize)
 end
 
+-- Check if a player is visible and within 400 units of the local player
 local function IsPlayerVisibleAndClose(ply)
     local distance = ply:GetPos():Distance(LocalPlayer():GetPos())
     if distance > 400 then return false end
@@ -94,12 +104,12 @@ local function IsPlayerVisibleAndClose(ply)
     return not tr.Hit
 end
 
+-- 3D2D drawing for player info (name, rank, wanted status)
 local function Draw3D2DPlayerInfo(ply)
     if not MagicHud.EnableOverheadHUD then return end
 
     local pos = ply:EyePos() + ply:GetUp() * 25
     local distance = ply:GetPos():Distance(LocalPlayer():GetPos())
-
     if distance > 400 then return end
 
     local Ang = Angle(0, LocalPlayer():EyeAngles().y - 90, 90)
@@ -108,6 +118,7 @@ local function Draw3D2DPlayerInfo(ply)
 
     local yOffset = -50
 
+    -- Gun license icon
     if not MagicHud.SandboxMode and ply:getDarkRPVar("HasGunlicense") then
         local gunLicenseYPos = yOffset
         surface.SetMaterial(gunlicenseIcon)
@@ -116,6 +127,7 @@ local function Draw3D2DPlayerInfo(ply)
         yOffset = yOffset + 25
     end
 
+    -- Rank display
     if MagicHud.EnableRankDisplay then
         local userGroup = ply:GetUserGroup()
         local rankConfig = MagicHud.RankSettings[userGroup]
@@ -128,7 +140,6 @@ local function Draw3D2DPlayerInfo(ply)
             local rankYPos = yOffset + 5
             surface.SetFont("Font2")
             local rankTextWidth = surface.GetTextSize(displayRank) or 0
-
             local rankTotalWidth = rankTextWidth
             if rankIcon then
                 rankTotalWidth = rankTotalWidth + 20
@@ -148,6 +159,7 @@ local function Draw3D2DPlayerInfo(ply)
         yOffset = yOffset + 25
     end
 
+    -- Wanted status and player name
     if ply:getDarkRPVar("wanted") and ply:getDarkRPVar("wantedReason") then
         local wantedReason = ply:getDarkRPVar("wantedReason")
         local timeFactor = math.sin(CurTime() * 8)
@@ -160,12 +172,14 @@ local function Draw3D2DPlayerInfo(ply)
 
     yOffset = yOffset + 20
 
+    -- Job text
     if not MagicHud.SandboxMode then
         local jobText = ply:getDarkRPVar("job") or "ERROR"
         draw.SimpleTextOutlined(jobText, "Font1", 0, yOffset, team.GetColor(ply:Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, 150))
         yOffset = yOffset + 15
     end
 
+    -- Health and armor
     local healthText = ply:Health() .. "%"
     draw.SimpleTextOutlined(healthText, "Font1", 0, yOffset, MagicHud.HealthColor or Color(255, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, 150))
 
@@ -177,6 +191,7 @@ local function Draw3D2DPlayerInfo(ply)
     cam.End3D2D()
 end
 
+-- Hook to draw 3D2D HUD for all players
 hook.Add("PostDrawOpaqueRenderables", "Custom3D2DPlayerInfo", function()
     for _, ply in pairs(player.GetAll()) do
         if ply ~= LocalPlayer() and ply:Alive() and IsPlayerVisibleAndClose(ply) then
@@ -185,6 +200,7 @@ hook.Add("PostDrawOpaqueRenderables", "Custom3D2DPlayerInfo", function()
     end
 end)
 
+-- Main HUD rendering function
 function PlainHudBase()
     local ply = LocalPlayer()
     if not MagicHud.EnableHUD then return end
@@ -197,18 +213,22 @@ function PlainHudBase()
     local iconSize = 16
     local shadowOffset = 1
 
+    -- Draw background blur
     DrawBackgroundBlur()
 
+    -- Draw player name
     DrawIconWithSoftShadow(hudXOffset, iconYOffset, user, iconSize, shadowOffset)
     local nameText = ply:GetName()
     draw.SimpleText(nameText, "Font1", hudXOffset + iconTextSpacing, hudYOffset, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
     hudXOffset = hudXOffset + iconTextSpacing + surface.GetTextSize(nameText) + elementSpacing
 
+    -- Draw player health
     DrawIconWithSoftShadow(hudXOffset, iconYOffset, heart, iconSize, shadowOffset)
     local healthText = ply:Health() .. "%"
     draw.SimpleText(healthText, "Font1", hudXOffset + iconTextSpacing, hudYOffset, MagicHud.HealthColor or Color(255, 0, 0), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
     hudXOffset = hudXOffset + iconTextSpacing + surface.GetTextSize(healthText) + elementSpacing
 
+    -- Draw player armor if any
     if ply:Armor() > 0 then
         DrawIconWithSoftShadow(hudXOffset, iconYOffset, world, iconSize, shadowOffset)
         local armorText = ply:Armor() .. "%"
@@ -216,6 +236,7 @@ function PlainHudBase()
         hudXOffset = hudXOffset + iconTextSpacing + surface.GetTextSize(armorText) + elementSpacing
     end
 
+    -- Draw job, money, and salary if not in Sandbox mode
     if not MagicHud.SandboxMode then
         DrawIconWithSoftShadow(hudXOffset, iconYOffset, id, iconSize, shadowOffset)
         local jobText = team.GetName(ply:Team())
@@ -233,6 +254,7 @@ function PlainHudBase()
         hudXOffset = hudXOffset + iconTextSpacing + surface.GetTextSize(salary) + elementSpacing
     end
 
+    -- Draw gun license icon if player has one
     if not MagicHud.SandboxMode then
         local hasGunLicense = ply:getDarkRPVar("HasGunlicense")
         local gunLicenseAlpha = hasGunLicense and 255 or 100
@@ -242,22 +264,34 @@ function PlainHudBase()
         hudXOffset = hudXOffset + iconSize + elementSpacing
     end
 
-    if IsValid(ply) and IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():Clip1() > -1 then
-        draw.SimpleText(ply:GetActiveWeapon():GetPrintName(), "Font1", ScrW() - 130, ScrH() - 58, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText(ply:GetActiveWeapon():Clip1() .. " / " .. ply:GetAmmoCount(ply:GetActiveWeapon():GetPrimaryAmmoType()) or 0, "Font1", ScrW() - 130, ScrH() - 26, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-    end
+    -- Draw ammo display (bottom right corner)
+if IsValid(ply) and IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():Clip1() > -1 then
+    local weaponName = ply:GetActiveWeapon():GetPrintName()
+    local clip1 = ply:GetActiveWeapon():Clip1()
+    local ammoCount = ply:GetAmmoCount(ply:GetActiveWeapon():GetPrimaryAmmoType()) or 0
 
+    -- Draw weapon name with shadow
+    draw.SimpleTextOutlined(weaponName, "Font1", ScrW() - 130, ScrH() - 58, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 150))
+
+    -- Draw ammo count with shadow
+    draw.SimpleTextOutlined(clip1 .. " / " .. ammoCount, "Font1", ScrW() - 130, ScrH() - 26, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 150))
+end
+
+    -- Draw the agenda
     if not MagicHud.SandboxMode and MagicHud.EnableAgenda then
         DrawAgenda()
     end
 
+    -- Draw top-right text (cycling or static)
     DrawTopRightText()
 end
 
+-- HUD hooks to control visibility of default HUD elements
 hook.Add("HUDPaint", "PlainHUD", function()
     PlainHudBase()
 end)
 
+-- Disable default HUD elements
 local tohide = {
     ["CHudHealth"] = true,
     ["CHudBattery"] = true,
