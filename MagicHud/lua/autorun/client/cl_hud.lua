@@ -1,4 +1,4 @@
--- Version 1.4
+-- Version 1.3
 
 include("autorun/sh_hudconfig.lua")
 
@@ -200,7 +200,23 @@ hook.Add("PostDrawOpaqueRenderables", "Custom3D2DPlayerInfo", function()
     end
 end)
 
--- Main HUD rendering function
+-- Add lockdown and arrested notifications
+local function DrawLockdownNotification()
+    if MagicHud.EnableLockdownNotification and GetGlobalBool("DarkRP_LockDown") then
+        local cin = (math.sin(CurTime() * 2) + 1) / 2
+        local ccol = Color(cin * 255, 0, 255 - (cin * 255), 255)
+        draw.SimpleTextOutlined("LOCKDOWN INITIATED, PLEASE RETURN TO YOUR HOME!", "Font1", ScrW() / 2, 60, ccol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, 150))
+    end
+end
+
+local function DrawArrestedNotification()
+    if MagicHud.EnableArrestedNotification and LocalPlayer():getDarkRPVar("Arrested") then
+        local arrestedText = "You have been arrested!"
+        draw.SimpleTextOutlined(arrestedText, "Font1", ScrW() / 2, 90, Color(255, 0, 0, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, 150))
+    end
+end
+
+-- Main HUD rendering function (updated with new features)
 function PlainHudBase()
     local ply = LocalPlayer()
     if not MagicHud.EnableHUD then return end
@@ -264,18 +280,24 @@ function PlainHudBase()
         hudXOffset = hudXOffset + iconSize + elementSpacing
     end
 
+    -- Draw lockdown notification
+    DrawLockdownNotification()
+
+    -- Draw arrested notification
+    DrawArrestedNotification()
+
     -- Draw ammo display (bottom right corner)
-if IsValid(ply) and IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():Clip1() > -1 then
-    local weaponName = ply:GetActiveWeapon():GetPrintName()
-    local clip1 = ply:GetActiveWeapon():Clip1()
-    local ammoCount = ply:GetAmmoCount(ply:GetActiveWeapon():GetPrimaryAmmoType()) or 0
+    if IsValid(ply) and IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():Clip1() > -1 then
+        local weaponName = ply:GetActiveWeapon():GetPrintName()
+        local clip1 = ply:GetActiveWeapon():Clip1()
+        local ammoCount = ply:GetAmmoCount(ply:GetActiveWeapon():GetPrimaryAmmoType()) or 0
 
-    -- Draw weapon name with shadow
-    draw.SimpleTextOutlined(weaponName, "Font1", ScrW() - 130, ScrH() - 58, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 150))
+        -- Draw weapon name with shadow
+        draw.SimpleTextOutlined(weaponName, "Font1", ScrW() - 130, ScrH() - 58, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 150))
 
-    -- Draw ammo count with shadow
-    draw.SimpleTextOutlined(clip1 .. " / " .. ammoCount, "Font1", ScrW() - 130, ScrH() - 26, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 150))
-end
+        -- Draw ammo count with shadow
+        draw.SimpleTextOutlined(clip1 .. " / " .. ammoCount, "Font1", ScrW() - 130, ScrH() - 26, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 150))
+    end
 
     -- Draw the agenda
     if not MagicHud.SandboxMode and MagicHud.EnableAgenda then
