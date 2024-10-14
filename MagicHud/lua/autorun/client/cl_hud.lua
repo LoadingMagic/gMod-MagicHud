@@ -211,7 +211,7 @@ end
 
 local function DrawArrestedNotification()
     if MagicHud.EnableArrestedNotification and LocalPlayer():getDarkRPVar("Arrested") then
-        local arrestedText = "You have been arrested!"
+        local arrestedText = "YOU HAVE BEEN ARRESTED!"
         draw.SimpleTextOutlined(arrestedText, "Font1", ScrW() / 2, 90, Color(255, 0, 0, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, 150))
     end
 end
