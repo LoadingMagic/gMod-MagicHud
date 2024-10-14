@@ -15,7 +15,7 @@ MagicHud.EnableAgenda = true -- DISABLES AGENDA.
 MagicHud.SandboxMode = false -- DONT WANT DARKRP FEATURES ENABLE THIS FOR SANDBOX.
 MagicHud.EnableTopRightTextCycle = false -- THIS FALSE WILL MAKE IT SO THE FIRST MESSAGE HERE IS ONLY SHOW.
 MagicHud.TopRightTextColor = Color(255, 255, 255) -- COLOR OF THE TEXT.
-MagicHud.TopRightTextInterval = 3 -- THE TIME THAT EACH MESSAGE IS ROTATED.
+MagicHud.TopRightTextInterval = 1 -- THE TIME THAT EACH MESSAGE IS ROTATED.
 MagicHud.TopRightTexts = {
     "CHECKOUT OUR WWW.WEBSITE.COM", 
     "CHECKOUT OUR STEAMGROUP WWW.STEAMGROUPLINK.COM",
@@ -35,7 +35,7 @@ MagicHud.RankSettings = {
     user = {
         DisplayName = "User",
         Color = Color(255, 255, 255),
-        Icon = "icon16/user.png", -- REMOVE THIS LINE TO REMOVE THE ICON.
+        Icon = "icon16/user.png",
 		RainbowColor = false
     },
     vip = {
